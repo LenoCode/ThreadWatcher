@@ -13,5 +13,11 @@ public abstract class Notifier extends ThreadControllerObjects {
     public void notifyThreadFinished(String threadName){
         userMethodController.threadFinishied(threadName);
     }
+    public boolean checkIfThreadFinished(String threadName){
+        return userMethodController.checkIfThreadActive(threadName);
+    }
+    public boolean notifyUserAboutNewThread(String methodName){
+        return userMethodController.catchEmptySpace(methodName);
+    }
 
 }

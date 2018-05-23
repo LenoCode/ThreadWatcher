@@ -1,44 +1,85 @@
 package thread_watcher.thread.queue;
 
-import thread_watcher.non_concrete.models.user_implementation.user_method.UserMethod;
 import thread_watcher.thread.controller.ThreadController;
-import thread_watcher.thread.queue.queued_thread.QueuedThread;
-import thread_watcher.user_parts.thread_bundle.Bundle;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ThreadQueue {
 
-    private final List<QueuedThread> threadsInQueue;
-    private boolean action;
+    private int lastestThread;
+    private final Map<String,ArrayList<Integer>> queue;
+    private final Object lockQueue = new Object();
 
     public ThreadQueue(){
-        threadsInQueue = new ArrayList<>();
+        lastestThread = 0;
+        queue = new HashMap<>();
     }
 
-    public void addThreadToQueue(UserMethod userMethod, Bundle bundle){
-        QueuedThread queuedThread = new QueuedThread();
-        queuedThread.setBundle(bundle);
-        queuedThread.setUserMethod(userMethod);
-        threadsInQueue.add(queuedThread);
-    }
-
-    public void threadFinished(String threadName) {
-        QueuedThread queuedThread = arrayLoop(threadName);
-        if (queuedThread != null){
-            threadsInQueue.remove(queuedThread);
-            ThreadController.getThreadController().startQueueUserMethod(queuedThread.getUserMethod(),queuedThread.getBundle());
+    public int addToQueue(String methodName){
+        if (queue.containsKey(methodName)){
+            ArrayList<Integer> methodQueue = queue.get(methodName);
+            methodQueue.add(lastestThread);
+        }else{
+            ArrayList<Integer> methodQueue = new ArrayList<>();
+            methodQueue.add(lastestThread);
+            queue.put(methodName,methodQueue);
         }
+        return lastestThread++;
     }
+    public boolean waitMethodTurn(String methodName,int ordinal_num){
+        boolean notReady = true;
+        ThreadController threadController = ThreadController.getThreadController();
 
-    private QueuedThread arrayLoop(String stringToSearch){
-        for (QueuedThread queuedThread : threadsInQueue){
-            String string =queuedThread.getUserMethod().getClass().getSimpleName();
-            if (string.equals(stringToSearch)){
-                return queuedThread;
+        while(notReady){
+            synchronized (lockQueue) {
+                try{
+                    notReady = readyTurn(threadController,methodName,ordinal_num);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
         }
-        return null;
+        return true;
+    }
+    private boolean readyTurn(ThreadController threadController,String methodName,int ordinal_num)throws Exception{
+        if (threadController.checkIfThreadFinished(methodName)) {
+            if (queueStatus(methodName, ordinal_num)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    private boolean queueStatus(String methodName,int ordinal_num){
+        if (queue.containsKey(methodName)){
+            ArrayList arrayList = queue.get(methodName);
+
+            if (getNextNumber(arrayList) == ordinal_num){
+                if (checkIfQueueIsEmpty(arrayList)){
+                    queue.remove(methodName);
+                }
+                ThreadController.getThreadController().notifyUserAboutNewThread(methodName);
+                return true;
+            }else{
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private int getNextNumber(ArrayList<Integer> arrayList){
+        return arrayList.get(0);
+    }
+
+    private boolean checkIfQueueIsEmpty(ArrayList<Integer> arrayList){
+        if (arrayList.size() < 2){
+            arrayList.clear();
+            lastestThread = 0;
+            return true;
+        }else{
+            arrayList.remove(0);
+            return false;
+        }
     }
 }

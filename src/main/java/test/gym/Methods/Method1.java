@@ -9,6 +9,11 @@ import thread_watcher.user_parts.thread_bundle.Bundle;
 public class Method1 implements UserMethod {
     @Override
     public void callUserMethod(Bundle bundle) throws Exception {
-        System.out.println(bundle.getArguments("param1") +    "   A OVO JE SVE");
+        try{
+            Thread.sleep(5);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        System.out.println("FINISHED FINE " + bundle.getArguments("param1"));
     }
 }

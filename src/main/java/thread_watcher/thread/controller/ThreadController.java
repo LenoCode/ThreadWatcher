@@ -18,20 +18,16 @@ public class ThreadController extends Notifier {
         return threadController;
     }
 
-    public void startUserMethod(UserMethod userMethod, Object ... objects){
+    public synchronized void startUserMethod(UserMethod userMethod, Object ... objects){
         UserMethodParametersName userMethodParametersName = userMethod.getClass().getDeclaredAnnotation(UserMethodParametersName.class);
         Bundle bundle = Bundle.createBundle(userMethodParametersName,objects);
 
-        if (userMethodController.checkIsThreadActive(userMethod.getClass().getSimpleName())){
-           setupThread(threadRunner.runThread(userMethod,bundle)).start();
+        if (userMethodController.checkForEmptySpace(userMethod.getClass().getSimpleName())){
+            setupThread(threadRunner.runThread(userMethod,bundle)).start();
         }else{
             int ordinal_num = threadQueue.addToQueue(userMethod.getClass().getSimpleName());
             setupThread(threadRunner.queueRunThread(ordinal_num,threadQueue,userMethod,bundle)).start();
         }
-    }
-
-    public void startQueueUserMethod(UserMethod userMethod,Bundle bundle){
-        setupThread(threadRunner.runThread(userMethod,bundle)).start();
     }
 
     private Thread setupThread(Runnable runnable){
