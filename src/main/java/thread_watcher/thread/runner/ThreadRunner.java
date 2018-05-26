@@ -6,14 +6,16 @@ import thread_watcher.thread.controller.ThreadController;
 import thread_watcher.thread.queue.ThreadQueue;
 import thread_watcher.user_parts.thread_bundle.Bundle;
 
+import java.lang.reflect.Method;
+
 public class ThreadRunner{
 
-    public Runnable runThread(UserMethod userMethod, Bundle bundle){
+    public Runnable runThread(Method method, UserMethod userMethod, Bundle bundle){
         return new Runnable() {
             @Override
             public void run() {
                 try{
-                    runUserMethod(userMethod,bundle);
+                    runUserMethod(method,userMethod,bundle);
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -21,14 +23,14 @@ public class ThreadRunner{
         };
     }
 
-    public Runnable queueRunThread(int ordinal_num, ThreadQueue threadQueue_test, UserMethod userMethod, Bundle bundle){
+    public Runnable queueRunThread(int ordinal_num, ThreadQueue threadQueue_test,Method method ,UserMethod userMethod, Bundle bundle){
         return new Runnable() {
             @Override
             public void run() {
                 try{
                     String methodName = userMethod.getClass().getSimpleName();
                     threadQueue_test.waitMethodTurn(methodName,ordinal_num);
-                    runUserMethod(userMethod,bundle);
+                    runUserMethod(method,userMethod,bundle);
                 }catch (Exception e){
                    e.printStackTrace();
                 }
@@ -36,9 +38,9 @@ public class ThreadRunner{
         };
     }
 
-    private void runUserMethod(UserMethod userMethod,Bundle bundle){
+    private void runUserMethod(Method method,UserMethod userMethod,Bundle bundle){
         try{
-            userMethod.callUserMethod(bundle);
+            method.invoke(userMethod,bundle);
         }catch (Exception exception){
             throw new RuntimeException("");
         }
