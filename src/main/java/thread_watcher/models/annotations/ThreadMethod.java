@@ -1,4 +1,4 @@
-package thread_watcher.non_concrete.annotations;
+package thread_watcher.models.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

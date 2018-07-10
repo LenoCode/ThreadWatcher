@@ -1,6 +1,6 @@
 package thread_watcher.user_parts.thread_bundle;
 
-import thread_watcher.non_concrete.annotations.ThreadMethod;
+import thread_watcher.models.annotations.ThreadMethod;
 
 import java.util.HashMap;
 import java.util.Map;

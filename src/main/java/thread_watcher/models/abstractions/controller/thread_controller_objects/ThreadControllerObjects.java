@@ -1,4 +1,4 @@
-package thread_watcher.non_concrete.abstractions.controller.thread_controller_objects;
+package thread_watcher.models.abstractions.controller.thread_controller_objects;
 
 import thread_watcher.thread.controller.user_method_controller.UserMethodController;
 import thread_watcher.thread.queue.ThreadQueue;

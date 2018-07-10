@@ -1,8 +1,9 @@
 package thread_watcher.thread.controller;
 
-import thread_watcher.non_concrete.abstractions.controller.notifier_controller.Notifier;
-import thread_watcher.non_concrete.annotations.ThreadMethod;
-import thread_watcher.non_concrete.models.user_implementation.user_method.UserMethod;
+import async_communicator.AsyncCommunicator;
+import thread_watcher.models.abstractions.controller.notifier_controller.Notifier;
+import thread_watcher.models.abstractions.user_method.UserMethod;
+import thread_watcher.models.annotations.ThreadMethod;
 import thread_watcher.user_parts.thread_bundle.Bundle;
 
 import java.lang.reflect.Method;
@@ -10,9 +11,11 @@ import java.lang.reflect.Method;
 
 public class ThreadController extends Notifier {
     private static  ThreadController threadController;
+    private final AsyncCommunicator asyncCommunicator;
 
 
     private ThreadController(){
+        asyncCommunicator = AsyncCommunicator.getAsyncCommunicator();
     }
     public static ThreadController getThreadController(){
         if (threadController == null){
@@ -21,17 +24,26 @@ public class ThreadController extends Notifier {
         return threadController;
     }
 
-    public synchronized void startUserMethod(String methodName,UserMethod userMethod, Object ... objects){
+    public synchronized long startUserMethod(String methodName, UserMethod userMethod, Object ... objects){
         Method method = getMethod(methodName,userMethod);
         ThreadMethod userMethodParametersName = method.getAnnotation(ThreadMethod.class);
         Bundle bundle = Bundle.createBundle(userMethodParametersName,objects);
 
+        Thread configuredThread;
+        long threadId;
         if (userMethodController.checkForEmptySpace(userMethod.getClass().getSimpleName())){
-            setupThread(threadRunner.runThread(method,userMethod,bundle)).start();
+            configuredThread = setupThread(threadRunner.runThread(method,userMethod,bundle));
+            threadId = configuredThread.getId();
+            asyncCommunicator.initNewThread(threadId);
+            configuredThread.start();
         }else{
             int ordinal_num = threadQueue.addToQueue(userMethod.getClass().getSimpleName());
-            setupThread(threadRunner.queueRunThread(ordinal_num,threadQueue,method,userMethod,bundle)).start();
+            configuredThread =setupThread(threadRunner.queueRunThread(ordinal_num,threadQueue,method,userMethod,bundle));
+            threadId = configuredThread.getId();
+            asyncCommunicator.initNewThread(configuredThread.getId());
+            configuredThread.start();
         }
+        return threadId;
     }
 
     private Method getMethod(String methodName,UserMethod userMethod){

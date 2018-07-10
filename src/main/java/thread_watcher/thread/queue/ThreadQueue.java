@@ -27,9 +27,11 @@ public class ThreadQueue {
         return lastestThread++;
     }
     public boolean waitMethodTurn(String methodName,int ordinal_num){
+        System.out.println("Method not ready");
         boolean notReady = true;
         ThreadController threadController = ThreadController.getThreadController();
 
+        System.out.println("MUTEX ..................");
         while(notReady){
             synchronized (lockQueue) {
                 try{
@@ -41,6 +43,7 @@ public class ThreadQueue {
         }
         return true;
     }
+
     private boolean readyTurn(ThreadController threadController,String methodName,int ordinal_num)throws Exception{
         if (threadController.checkIfThreadFinished(methodName)) {
             if (queueStatus(methodName, ordinal_num)) {
@@ -54,7 +57,7 @@ public class ThreadQueue {
     private boolean queueStatus(String methodName,int ordinal_num){
         if (queue.containsKey(methodName)){
             ArrayList arrayList = queue.get(methodName);
-
+            System.out.println("get next number   "+getNextNumber(arrayList)+ "     "+ordinal_num);
             if (getNextNumber(arrayList) == ordinal_num){
                 if (checkIfQueueIsEmpty(arrayList)){
                     queue.remove(methodName);

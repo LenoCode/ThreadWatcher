@@ -1,6 +1,6 @@
-package thread_watcher.non_concrete.abstractions.controller.notifier_controller;
+package thread_watcher.models.abstractions.controller.notifier_controller;
 
-import thread_watcher.non_concrete.abstractions.controller.thread_controller_objects.ThreadControllerObjects;
+import thread_watcher.models.abstractions.controller.thread_controller_objects.ThreadControllerObjects;
 
 
 public abstract class Notifier extends ThreadControllerObjects {
