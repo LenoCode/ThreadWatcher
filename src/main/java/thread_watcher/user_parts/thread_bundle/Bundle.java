@@ -1,6 +1,6 @@
 package thread_watcher.user_parts.thread_bundle;
 
-import thread_watcher.non_concrete.annotations.UserMethodParametersName;
+import thread_watcher.models.annotations.ThreadMethod;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +13,7 @@ public class Bundle {
     }
 
 
-    public static Bundle createBundle(UserMethodParametersName userMethodParametersName,Object ... objects){
+    public static Bundle createBundle(ThreadMethod userMethodParametersName, Object ... objects){
         Bundle bundle = new Bundle();
         bundle.setupBundleWithArguments(userMethodParametersName.paramNames(),objects);
         return bundle;
